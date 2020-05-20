@@ -1,5 +1,10 @@
 """CS 61A Presents The Game of Hog."""
 
+""" 
+@ Author: Adnan H. Mohamed
+Note*: Some of the code is already given from CS 61A code for this project.
+"""
+
 from dice import six_sided, four_sided, make_test_dice
 from ucb import main, trace, interact
 
@@ -20,8 +25,7 @@ def roll_dice(num_rolls, dice=six_sided):
     # These assert statements ensure that num_rolls is a positive integer.
     assert type(num_rolls) == int, 'num_rolls must be an integer.'
     assert num_rolls > 0, 'Must roll at least once.'
-    # BEGIN PROBLEM 1
-    "*** YOUR CODE HERE ***"
+
     tot = 0  # the total outcomes counter
     pig_out = False  # indicates the event of "Pig-out"
     for i in range(num_rolls):
@@ -34,8 +38,6 @@ def roll_dice(num_rolls, dice=six_sided):
     else:
     	return tot
 
-    # END PROBLEM 1
-
 
 def free_bacon(score):
     """Return the points scored from rolling 0 dice (Free Bacon).
@@ -43,15 +45,13 @@ def free_bacon(score):
     score:  The opponent's current score.
     """
     assert score < 100, 'The game should be over.'
-    # BEGIN PROBLEM 2
-    "*** YOUR CODE HERE ***"
+
     def alter_diff(n):
     	if(n < 10):
         	return n
     	return n % 10 - alter_diff(n//10)
 
     return 1 + abs(alter_diff(score**3))
-    # END PROBLEM 2
 
 
 def take_turn(num_rolls, opponent_score, dice=six_sided):
@@ -67,25 +67,21 @@ def take_turn(num_rolls, opponent_score, dice=six_sided):
     assert num_rolls >= 0, 'Cannot roll a negative number of dice in take_turn.'
     assert num_rolls <= 10, 'Cannot roll more than 10 dice.'
     assert opponent_score < 100, 'The game should be over.'
-    # BEGIN PROBLEM 3
-    "*** YOUR CODE HERE ***"
+
     if num_rolls == 0:
     	return free_bacon(opponent_score)
     else:
     	return roll_dice(num_rolls, dice)
-    # END PROBLEM 3
 
 
 def is_swap(player_score, opponent_score):
     """
     Return whether the two scores should be swapped
     """
-    # BEGIN PROBLEM 4
-    "*** YOUR CODE HERE ***"
     def first_eq_last(n):
     	return str(n)[0] == str(n)[-1]
     return first_eq_last(3**(player_score+opponent_score))
-    # END PROBLEM 4
+
 
 
 def other(who):
@@ -123,7 +119,7 @@ def play(strategy0, strategy1, score0=0, score1=0, dice=six_sided,goal=GOAL_SCOR
 	feral_hogs: A boolean indicating whether the feral hogs rule should be active.
 	"""
 	who = 0  # Who is about to take a turn, 0 (first) or 1 (second)
-	# BEGIN PROBLEM 5
+
 	def extra_points(prev_scored, current_rolls):
 		""" Returns 3 extra points if the number of dice
 		rolled is 2 less/more than the previous scored points
@@ -135,7 +131,7 @@ def play(strategy0, strategy1, score0=0, score1=0, dice=six_sided,goal=GOAL_SCOR
 			return 3
 		else:
 			return 0    
-	"*** YOUR CODE HERE ***"
+
 	if(feral_hogs):
 		player_prev_scored = opponent_prev_scored = 0
 		while(score0 < goal and score1 < goal):
@@ -147,6 +143,8 @@ def play(strategy0, strategy1, score0=0, score1=0, dice=six_sided,goal=GOAL_SCOR
 			
 			if is_swap(score0, score1):
 				score0, score1 = score1, score0
+
+			say = say(score0, score1)
 			if(score0 >= goal or score1 >= goal):
 				break
 			
@@ -157,25 +155,25 @@ def play(strategy0, strategy1, score0=0, score1=0, dice=six_sided,goal=GOAL_SCOR
 			opponent_prev_scored = turn_score
 			if is_swap(score0, score1):
 				score0, score1 = score1, score0
+
+			say = say(score0, score1)
 	else:
 		while(score0 < goal and score1 < goal):
 			num_rolls = strategy0(score0, score1)
 			score0 += take_turn(num_rolls, score1, dice)  
 			if is_swap(score0, score1):			
 				score0, score1 = score1, score0
+
+			say = say(score0, score1)
 			if(score0 >= goal or score1 >= goal):
 				break
 			num_rolls = strategy1(score1, score0)
 			score1 += take_turn(num_rolls, score0, dice)			
 			if is_swap(score0, score1):
-				score0, score1 = score1, score0		
+				score0, score1 = score1, score0	
 
-	# END PROBLEM 5
-	# (note that the indentation for the problem 6 prompt (***YOUR CODE HERE***) might be misleading)
-	# BEGIN PROBLEM 6
-	"*** YOUR CODE HERE ***"
+			say = say(score0, score1)	
 
-	# END PROBLEM 6
 	return score0, score1
 
 
@@ -259,9 +257,23 @@ def announce_highest(who, prev_high=0, prev_score=0):
     55 point(s)! That's the biggest gain yet for Player 1
     """
     assert who == 0 or who == 1, 'The who argument should indicate a player.'
-    # BEGIN PROBLEM 7
-    "*** YOUR CODE HERE ***"
-    # END PROBLEM 7
+
+    def say(score0, score1):
+    	highest_score = prev_high
+    	if (who ==0) and (highest_score < (score0 - prev_score)):  # if the function called for player0 and he scored a highest score announce it.
+    		turn_score = score0 - prev_score
+    		print(turn_score, "point(s)! That's the biggest gain yet for Player", who)
+    		highest_score = score0 - prev_score
+    	elif (who ==1 and (highest_score < (score1 - prev_score))):  # if the function called for player1 and he scored a highest score announce it.
+    		turn_score = score1 - prev_score
+    		print(turn_score, "point(s)! That's the biggest gain yet for Player", who)
+    		highest_score = score1 - prev_score
+    	if who == 0:
+    		return announce_highest(who, highest_score, score0)  #  Returning the function with 
+    	else:													 #  the updated highest_score
+    		return announce_highest(who, highest_score, score1)  #  and the new prev_score
+    return say
+
 
 
 #######################
