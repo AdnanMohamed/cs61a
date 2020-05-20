@@ -307,15 +307,12 @@ def make_averaged(g, num_samples=1000):
     >>> averaged_dice()
     3.0
     """
-    # BEGIN PROBLEM 8
-    "*** YOUR CODE HERE ***"
     def averaged(*args):
     	total = 0
     	for i in range(num_samples):
     		total += g(*args)
     	return total / num_samples
     return averaged
-    # END PROBLEM 8
 
 
 def max_scoring_num_rolls(dice=six_sided, num_samples=1000):
@@ -396,7 +393,6 @@ def swap_strategy(score, opponent_score, margin=8, num_rolls=6):
     rolls 0 dice if it gives at least MARGIN points and does not trigger a
     non-beneficial swap. Otherwise, it rolls NUM_ROLLS.
     """
-    # BEGIN PROBLEM 11
     updated_score = score + free_bacon(opponent_score)   # the player's score after the free bacon
 
     def good_swap(player_score, opp_score):
@@ -407,7 +403,6 @@ def swap_strategy(score, opponent_score, margin=8, num_rolls=6):
         return 0
     else:
     	return num_rolls
-    # END PROBLEM 11
 
 
 def final_strategy(score, opponent_score):
