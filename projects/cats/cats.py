@@ -15,32 +15,40 @@ def choose(paragraphs, select, k):
     paragraph returns true. If there are fewer than K such paragraphs, return
     the empty string.
     """
+    # BEGIN PROBLEM 1
     for p in paragraphs:
     	if select(p) and k == 0:
     		return p
     	elif select(p):
-    		k -= 1
+    		k-=1
     return ""
+    
+    # END PROBLEM 1
 
 
 def about(topic):
-    """Return a select function that returns whether a paragraph contains one
-    of the words in TOPIC.
+	"""Return a select function that returns whether a paragraph contains one
+	of the words in TOPIC.
 
-    >>> about_dogs = about(['dog', 'dogs', 'pup', 'puppy'])
-    >>> choose(['Cute Dog!', 'That is a cat.', 'Nice pup!'], about_dogs, 0)
-    'Cute Dog!'
-    >>> choose(['Cute Dog!', 'That is a cat.', 'Nice pup.'], about_dogs, 1)
-    'Nice pup.'
-    """
-    assert all([lower(x) == x for x in topic]), 'topics should be lowercase.'
-    def topic_in(paragraph):
-    	paragraph = remove_punctuation(paragraph.lower())
-    	for word in topic:
-    		if word in split(paragraph):
-    			return True
-    	return False 
-    return topic_in
+	>>> about_dogs = about(['dog', 'dogs', 'pup', 'puppy'])
+	>>> choose(['Cute Dog!', 'That is a cat.', 'Nice pup!'], about_dogs, 0)
+	'Cute Dog!'
+	>>> choose(['Cute Dog!', 'That is a cat.', 'Nice pup.'], about_dogs, 1)
+	'Nice pup.'
+	"""
+	assert all([lower(x) == x for x in topic]), 'topics should be lowercase.'
+	# BEGIN PROBLEM 2
+	"*** YOUR CODE HERE ***"
+	def f(p):
+		p = remove_punctuation(p)
+		p = split(lower(p))
+		for t in topic:
+			if t in p:
+				return True
+		return False
+
+	return f
+	# END PROBLEM 2
 
 
 def accuracy(typed, reference):
@@ -62,25 +70,32 @@ def accuracy(typed, reference):
     """
     typed_words = split(typed)
     reference_words = split(reference)
-    
-    correct_words = 0
+    # BEGIN PROBLEM 3
+    correct = 0
 
-    for tw, rw in zip(typed_words, reference_words):
-    	if tw == rw:
-    		correct_words += 1
-    if len(typed_words) == 0:
+    for w1,w2 in zip(typed_words,reference_words):
+    	if w1 == w2:
+    		correct += 1
+
+    if len(typed_words) == 0 or len(reference_words) == 0 or correct == 0:
     	return 0.0
-    return (correct_words / len(typed_words)) * 100
+
+    return ((correct) / len(typed_words)) * 100
+
+    # END PROBLEM 3
 
 
 def wpm(typed, elapsed):
     """Return the words-per-minute (WPM) of the TYPED string."""
     assert elapsed > 0, 'Elapsed time must be positive'
-    typical_word_len = 5
-    many_words = len(typed) / typical_word_len
-    minutes = elapsed / 60
+    # BEGIN PROBLEM 4
+    
+    many_chars = len(typed)  # number of typed characters
+    typical_length = 5  # the typical length of a word
 
-    return many_words / minutes
+    return (many_chars / typical_length) * (60 / elapsed)
+
+    # END PROBLEM 4
 
 
 def autocorrect(user_word, valid_words, diff_function, limit):
@@ -89,7 +104,17 @@ def autocorrect(user_word, valid_words, diff_function, limit):
     than LIMIT.
     """
     # BEGIN PROBLEM 5
-    "*** YOUR CODE HERE ***"
+    
+    if user_word in valid_words:
+    	return user_word
+   
+    answer = min(valid_words,key = lambda word:diff_function(user_word,word,limit))
+    
+    if diff_function(user_word,answer,limit) > limit:
+    	return user_word
+    else:
+    	return answer
+
     # END PROBLEM 5
 
 
@@ -99,30 +124,40 @@ def sphinx_swap(start, goal, limit):
     their lengths.
     """
     # BEGIN PROBLEM 6
-    assert False, 'Remove this line'
+    if start == goal:
+        return 0
+    elif start == "" or goal == "":
+        return abs(len(start)-len(goal))
+    elif start[0] == goal[0]:
+        return sphinx_swap(start[1::], goal[1::], limit)
+    elif limit == 0:
+        return 99
+    else:
+        return 1 + sphinx_swap(start[1::], goal[1::], limit - 1)
     # END PROBLEM 6
 
 
 def feline_fixes(start, goal, limit):
     """A diff function that computes the edit distance from START to GOAL."""
-    assert False, 'Remove this line'
-
-    if ______________: # Fill in the condition
+    if limit < 0:
+    	return 99
+    if start == goal: # Fill in the condition
         # BEGIN
-        "*** YOUR CODE HERE ***"
+        return 0
         # END
-
-    elif ___________: # Feel free to remove or add additional cases
-        # BEGIN
-        "*** YOUR CODE HERE ***"
-        # END
-
+    elif start == "" or goal == "":
+    	if limit - abs(len(start) - len(goal)) >= 0:
+    		return abs(len(start) - len(goal))
+    	else:
+    		return 99
+    elif start[0] == goal[0]: # Feel free to remove or add additional cases
+        return feline_fixes(start[1::], goal[1::], limit)
     else:
-        add_diff = ...  # Fill in these lines
-        remove_diff = ... 
-        substitute_diff = ... 
+        add_diff = 1 + feline_fixes(goal[0] + start, goal, limit - 1)
+        remove_diff = 1 + feline_fixes(start[1::], goal, limit - 1) 
+        substitute_diff = 1 + feline_fixes(goal[0] + start[1::], goal, limit - 1) 
         # BEGIN
-        "*** YOUR CODE HERE ***"
+        return min(add_diff, remove_diff, substitute_diff)
         # END
 
 
@@ -138,9 +173,17 @@ def final_diff(start, goal, limit):
 
 def report_progress(typed, prompt, id, send):
     """Send a report of your id and progress so far to the multiplayer server."""
-    # BEGIN PROBLEM 8
-    "*** YOUR CODE HERE ***"
-    # END PROBLEM 8
+    
+    # calculate progress
+    progress = 0
+    i = 0
+    while i < len(typed) and typed[i] == prompt[i]:
+        progress += 1
+        i += 1
+    progress = progress / len(prompt)
+    d = {'id':id, 'progress': progress}
+    send(d)
+    return progress
 
 
 def fastest_words_report(times_per_player, words):
@@ -164,10 +207,13 @@ def time_per_word(times_per_player, words):
                           the player finished typing each word.
         words: a list of words, in the order they are typed.
     """
-    # BEGIN PROBLEM 9
-    "*** YOUR CODE HERE ***"
-    # END PROBLEM 9
+    # calculating the times for each player.
 
+    times = []
+    for player_time in times_per_player:
+        times.append([player_time[i + 1] - player_time[i] for i in range(len(words))])
+
+    return game(words, times)
 
 def fastest_words(game):
     """Return a list of lists of which words each player typed fastest.
@@ -180,7 +226,16 @@ def fastest_words(game):
     players = range(len(all_times(game)))  # An index for each player
     words = range(len(all_words(game)))    # An index for each word
     # BEGIN PROBLEM 10
-    "*** YOUR CODE HERE ***"
+    def player_index(word_i, t):
+    	for p in players:
+    		if time(game, p, word_i) == t:
+    			return p
+    record = [list() for _ in players]
+    for word_index in words:
+    	best_time = min([time(game, p, word_index) for p in players])
+    	record[player_index(word_index, best_time)].append(word_at(game, word_index))
+
+    return record
     # END PROBLEM 10
 
 
@@ -220,7 +275,7 @@ def game_string(game):
     """A helper function that takes in a game object and returns a string representation of it"""
     return "game(%s, %s)" % (game[0], game[1])
 
-enable_multiplayer = False  # Change to True when you
+enable_multiplayer = True  # Change to True when you
 
 
 ##########################
