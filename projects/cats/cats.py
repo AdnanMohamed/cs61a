@@ -4,6 +4,11 @@ from utils import *
 from ucb import main, interact, trace
 from datetime import datetime
 
+"""
+-------- Copyright © ---------
+  @Author: Adnan Hashem Mohamed
+-------------------------------
+"""
 
 ###########
 # Phase 1 #
@@ -37,8 +42,6 @@ def about(topic):
 	'Nice pup.'
 	"""
 	assert all([lower(x) == x for x in topic]), 'topics should be lowercase.'
-	# BEGIN PROBLEM 2
-	"*** YOUR CODE HERE ***"
 	def f(p):
 		p = remove_punctuation(p)
 		p = split(lower(p))
@@ -48,7 +51,6 @@ def about(topic):
 		return False
 
 	return f
-	# END PROBLEM 2
 
 
 def accuracy(typed, reference):
@@ -70,7 +72,6 @@ def accuracy(typed, reference):
     """
     typed_words = split(typed)
     reference_words = split(reference)
-    # BEGIN PROBLEM 3
     correct = 0
 
     for w1,w2 in zip(typed_words,reference_words):
@@ -82,29 +83,22 @@ def accuracy(typed, reference):
 
     return ((correct) / len(typed_words)) * 100
 
-    # END PROBLEM 3
-
 
 def wpm(typed, elapsed):
     """Return the words-per-minute (WPM) of the TYPED string."""
     assert elapsed > 0, 'Elapsed time must be positive'
-    # BEGIN PROBLEM 4
     
     many_chars = len(typed)  # number of typed characters
     typical_length = 5  # the typical length of a word
 
     return (many_chars / typical_length) * (60 / elapsed)
 
-    # END PROBLEM 4
-
-
 def autocorrect(user_word, valid_words, diff_function, limit):
     """Returns the element of VALID_WORDS that has the smallest difference
     from USER_WORD. Instead returns USER_WORD if that difference is greater
     than LIMIT.
     """
-    # BEGIN PROBLEM 5
-    
+  
     if user_word in valid_words:
     	return user_word
    
@@ -115,7 +109,6 @@ def autocorrect(user_word, valid_words, diff_function, limit):
     else:
     	return answer
 
-    # END PROBLEM 5
 
 
 def sphinx_swap(start, goal, limit):
@@ -123,7 +116,6 @@ def sphinx_swap(start, goal, limit):
     in START need to be substituted to create GOAL, then adds the difference in
     their lengths.
     """
-    # BEGIN PROBLEM 6
     if start == goal:
         return 0
     elif start == "" or goal == "":
@@ -134,7 +126,6 @@ def sphinx_swap(start, goal, limit):
         return 99
     else:
         return 1 + sphinx_swap(start[1::], goal[1::], limit - 1)
-    # END PROBLEM 6
 
 
 def feline_fixes(start, goal, limit):
@@ -142,9 +133,7 @@ def feline_fixes(start, goal, limit):
     if limit < 0:
     	return 99
     if start == goal: # Fill in the condition
-        # BEGIN
         return 0
-        # END
     elif start == "" or goal == "":
     	if limit - abs(len(start) - len(goal)) >= 0:
     		return abs(len(start) - len(goal))
@@ -156,9 +145,7 @@ def feline_fixes(start, goal, limit):
         add_diff = 1 + feline_fixes(goal[0] + start, goal, limit - 1)
         remove_diff = 1 + feline_fixes(start[1::], goal, limit - 1) 
         substitute_diff = 1 + feline_fixes(goal[0] + start[1::], goal, limit - 1) 
-        # BEGIN
         return min(add_diff, remove_diff, substitute_diff)
-        # END
 
 
 def final_diff(start, goal, limit):
@@ -225,7 +212,6 @@ def fastest_words(game):
     """
     players = range(len(all_times(game)))  # An index for each player
     words = range(len(all_words(game)))    # An index for each word
-    # BEGIN PROBLEM 10
     def player_index(word_i, t):
     	for p in players:
     		if time(game, p, word_i) == t:
@@ -236,7 +222,6 @@ def fastest_words(game):
     	record[player_index(word_index, best_time)].append(word_at(game, word_index))
 
     return record
-    # END PROBLEM 10
 
 
 def game(words, times):
