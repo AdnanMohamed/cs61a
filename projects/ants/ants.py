@@ -54,7 +54,7 @@ class Insect:
     """An Insect, the base class of Ant and Bee, has armor and a Place."""
 
     damage = 0
-    # ADD CLASS ATTRIBUTES HERE
+    is_watersafe = False
 
     def __init__(self, armor, place=None):
         """Create an Insect with an ARMOR amount and a starting PLACE."""
@@ -112,6 +112,7 @@ class Ant(Insect):
     def __init__(self, armor=1):
         """Create an Ant with an ARMOR quantity."""
         Insect.__init__(self, armor)
+        self.doubled = False
 
     def can_contain(self, other):
         return False
@@ -374,30 +375,35 @@ class Water(Place):
     def add_insect(self, insect):
         """Add an Insect to this place. If the insect is not watersafe, reduce
         its armor to 0."""
-        # BEGIN Problem 11
-        "*** YOUR CODE HERE ***"
-        # END Problem 11
+        Place.add_insect(self, insect)
+        if not insect.is_watersafe:
+        	insect.reduce_armor(insect.armor)
 
-# BEGIN Problem 12
-# The ScubaThrower class
-# END Problem 12
 
-# BEGIN Problem 13
-class QueenAnt(Ant):  # You should change this line
-# END Problem 13
+class ScubaThrower(ThrowerAnt):
+	""" ScubaThrower is a ThrowerAnt that is watersafe"""
+	name = 'Scuba'
+	food_cost = 6
+	is_watersafe = True
+	implemented = True
+
+	def __init__(self, armor = 1):
+		ThrowerAnt.__init__(self, armor)
+
+
+class QueenAnt(ScubaThrower):
     """The Queen of the colony. The game is over if a bee enters her place."""
 
     name = 'Queen'
     food_cost = 7
-    # OVERRIDE CLASS ATTRIBUTES HERE
-    # BEGIN Problem 13
-    implemented = False   # Change to True to view in the GUI
-    # END Problem 13
+    num_of_queens = 0
+    max_queens = 1
+    implemented = True
 
     def __init__(self, armor=1):
-        # BEGIN Problem 13
-        "*** YOUR CODE HERE ***"
-        # END Problem 13
+        ScubaThrower.__init__(self, armor)
+        self.is_queen = QueenAnt.max_queens > QueenAnt.num_of_queens
+        QueenAnt.num_of_queens += 1
 
     def action(self, gamestate):
         """A queen ant throws a leaf, but also doubles the damage of ants
@@ -405,17 +411,33 @@ class QueenAnt(Ant):  # You should change this line
 
         Impostor queens do only one thing: reduce their own armor to 0.
         """
-        # BEGIN Problem 13
-        "*** YOUR CODE HERE ***"
-        # END Problem 13
+        if not self.is_queen:
+        	self.reduce_armor(self.armor)
+        else:
+        	ScubaThrower.action(self, gamestate)
+        	back = self.place.exit
+        	while back is not None:
+        		if isinstance(back.ant, ContainerAnt) and back.ant.contained_ant is not None:  # Container ant contains an ant
+        			if not back.ant.contained_ant.doubled:
+        				back.ant.contained_ant.damage *= 2      # double the damage of the contained ant.
+        				back.ant.contained_ant.doubled = True   # mark that it was doubled.
+        		if back.ant is not None and not back.ant.doubled:
+        			back.ant.damage *= 2       # double the container/non-container ant in the current back place.
+        			back.ant.doubled = True    # mark that it was doubled.
+
+        		back = back.exit
 
     def reduce_armor(self, amount):
         """Reduce armor by AMOUNT, and if the True QueenAnt has no armor
         remaining, signal the end of the game.
         """
-        # BEGIN Problem 13
-        "*** YOUR CODE HERE ***"
-        # END Problem 13
+        ScubaThrower.reduce_armor(self, amount)
+        if self.armor <= 0 and self.is_queen:
+        	bees_win()
+
+    def remove_from(self, place):
+    	if not self.is_queen:
+    		Ant.remove_from(self, place)
 
 
 
@@ -433,7 +455,7 @@ class Bee(Insect):
 
     name = 'Bee'
     damage = 1
-    # OVERRIDE CLASS ATTRIBUTES HERE
+    is_watersafe = True
 
 
     def sting(self, ant):
