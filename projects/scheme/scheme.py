@@ -118,9 +118,14 @@ class Frame(object):
         >>> env.make_child_frame(formals, expressions)
         <{a: 1, b: 2, c: 3} -> <Global Frame>>
         """
-        # BEGIN PROBLEM 10
-        "*** YOUR CODE HERE ***"
-        # END PROBLEM 10
+        if len(formals) != len(vals):
+            raise SchemeError("Incorrect number of arguments to function call.")
+        child_frame = Frame(self)
+        while formals is not nil:
+            child_frame.define(formals.first, vals.first)
+            formals, vals = formals.rest, vals.rest
+
+        return child_frame
 
 ##############
 # Procedures #
@@ -187,9 +192,7 @@ class LambdaProcedure(Procedure):
     def make_call_frame(self, args, env):
         """Make a frame that binds my formal parameters to ARGS, a Scheme list
         of values, for a lexically-scoped call evaluated in my parent environment."""
-        # BEGIN PROBLEM 11
-        "*** YOUR CODE HERE ***"
-        # END PROBLEM 11
+        return self.env.make_child_frame(self.formals, args)
 
     def __str__(self):
         return str(Pair('lambda', Pair(self.formals, self.body)))
