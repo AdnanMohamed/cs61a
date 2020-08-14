@@ -1,4 +1,10 @@
-"""A Scheme interpreter and its read-eval-print loop."""
+"""A Scheme interpreter and its read-eval-print loop.
+
+-------- Copyright © ---------
+  @Author: Adnan Hashem Mohamed
+-------------------------------
+"""
+
 from __future__ import print_function  # Python 2 compatibility
 
 import sys
@@ -6,6 +12,9 @@ import sys
 from scheme_builtins import *
 from scheme_reader import *
 from ucb import main, trace
+
+
+
 
 ##############
 # Eval/Apply #
@@ -322,9 +331,17 @@ def do_and_form(expressions, env):
     4
     False
     """
-    # BEGIN PROBLEM 12
-    "*** YOUR CODE HERE ***"
-    # END PROBLEM 12
+
+    if expressions is nil:
+        return True
+    
+    val = scheme_eval(expressions.first, env)
+    if is_false_primitive(val):
+        return False
+    elif expressions.rest is nil:
+        return val
+    else:
+        return do_and_form(expressions.rest, env)        
 
 def do_or_form(expressions, env):
     """Evaluate a (short-circuited) or form.
@@ -339,9 +356,16 @@ def do_or_form(expressions, env):
     2
     6
     """
-    # BEGIN PROBLEM 12
-    "*** YOUR CODE HERE ***"
-    # END PROBLEM 12
+    if expressions is nil:
+        return False
+    
+    val = scheme_eval(expressions.first, env)
+    if is_true_primitive(val):
+        return val
+    elif expressions.rest is nil:
+        return False
+    else:
+        return do_or_form(expressions.rest, env)    
 
 def do_cond_form(expressions, env):
     """Evaluate a cond form.
@@ -359,9 +383,11 @@ def do_cond_form(expressions, env):
         else:
             test = scheme_eval(clause.first, env)
         if is_true_primitive(test):
-            # BEGIN PROBLEM 13
-            "*** YOUR CODE HERE ***"
-            # END PROBLEM 13
+            if clause.first != "else" and clause.rest is nil:
+                return test
+            if clause.first == "else" and clause.rest is nil:
+                return True
+            return eval_all(clause.rest, env)
         expressions = expressions.rest
 
 def do_let_form(expressions, env):
@@ -383,9 +409,13 @@ def make_let_frame(bindings, env):
     if not scheme_listp(bindings):
         raise SchemeError('bad bindings list in let form')
     names, values = nil, nil
-    # BEGIN PROBLEM 14
-    "*** YOUR CODE HERE ***"
-    # END PROBLEM 14
+    
+    validate_form(bindings, 0)
+    bindings.map(lambda binding: validate_form(binding, 2, 2))
+
+    names = bindings.map(lambda binding: binding.first)
+    values = bindings.map(lambda binding: eval_all(binding.rest, env))
+    validate_formals(names)
     return env.make_child_frame(names, values)
 
 
@@ -509,9 +539,8 @@ class MuProcedure(Procedure):
         self.formals = formals
         self.body = body
 
-    # BEGIN PROBLEM 15
-    "*** YOUR CODE HERE ***"
-    # END PROBLEM 15
+    def make_call_frame(self, args, env):
+        return env.make_child_frame(self.formals, args)
 
     def __str__(self):
         return str(Pair('mu', Pair(self.formals, self.body)))
@@ -525,9 +554,7 @@ def do_mu_form(expressions, env):
     validate_form(expressions, 2)
     formals = expressions.first
     validate_formals(formals)
-    # BEGIN PROBLEM 18
-    "*** YOUR CODE HERE ***"
-    # END PROBLEM 18
+    return MuProcedure(formals, expressions.rest)
 
 SPECIAL_FORMS['mu'] = do_mu_form
 
