@@ -1,4 +1,4 @@
 (define x 10)
 
-(let()(x))
+(append (list x) (list 1 2 3))
  
