@@ -49,7 +49,38 @@ class VendingMachine:
     >>> w.vend()
     'Here is your soda.'
     """
-    "*** YOUR CODE HERE ***"
+    def __init__(self, stock_name, price):
+    	self.stock_name = stock_name
+    	self.price = price
+    	self.balance = 0
+    	self.stock_amount = 0
+
+    def vend(self):
+    	if self.stock_amount == 0:
+    		return 'Inventory empty. Restocking required.'
+    	elif self.balance < self.price:
+    		return 'You must add ${0} more funds.'.format(self.price - self.balance)
+    	else:
+    		self.stock_amount -= 1
+    		change = self.balance - self.price
+    		self.balance = 0
+    		if change > 0:
+    			return 'Here is your {0} and ${1} change.'.format(self.stock_name, change)
+    		else:
+    			return 'Here is your {0}.'.format(self.stock_name)
+
+    def restock(self, amount):
+    	self.stock_amount += amount
+    	return 'Current {0} stock: {1}'.format(self.stock_name, self.stock_amount)
+
+    def add_funds(self, amount):
+    	if self.stock_amount == 0:
+    		return 'Inventory empty. Restocking required. Here is your ${0}.'.format(amount)
+    	else:
+    		self.balance += amount
+    		return 'Current balance: ${0}'.format(self.balance)
+
+    
 
 
 class Mint:
@@ -87,17 +118,21 @@ class Mint:
         self.update()
 
     def create(self, kind):
-        "*** YOUR CODE HERE ***"
+        return kind(self.year)
 
     def update(self):
-        "*** YOUR CODE HERE ***"
+        self.year = Mint.current_year
 
 class Coin:
     def __init__(self, year):
         self.year = year
 
     def worth(self):
-        "*** YOUR CODE HERE ***"
+        difference = Mint.current_year - self.year
+        if difference > 50:
+        	return self.cents + difference - 50
+        else:
+        	return self.cents
 
 class Nickel(Coin):
     cents = 5
@@ -131,7 +166,31 @@ def is_bst(t):
     >>> is_bst(t7)
     False
     """
-    "*** YOUR CODE HERE ***"
+    def bst_min(t):
+        """Returns the min of t, if t has the structure of a valid BST."""
+        if t.is_leaf():
+            return t.label
+        return min(t.label, bst_min(t.branches[0]))
+
+    def bst_max(t):
+        """Returns the max of t, if t has the structure of a valid BST."""
+        if t.is_leaf():
+            return t.label
+        return max(t.label, bst_max(t.branches[-1]))
+
+    if t.is_leaf():
+        return True
+    if len(t.branches) == 1:
+        c = t.branches[0]
+        return is_bst(c) and (bst_max(c) <= t.label or bst_min(c) > t.label)
+    elif len(t.branches) == 2:
+        c1, c2 = t.branches
+        valid_branches = is_bst(c1) and is_bst(c2)
+        return valid_branches and bst_max(c1) <= t.label and bst_min(c2) > t.label
+    else:
+        return False
+
+
 
 
 def store_digits(n):
@@ -149,7 +208,10 @@ def store_digits(n):
     >>> cleaned = re.sub(r"#.*\\n", '', re.sub(r'"{3}[\s\S]*?"{3}', '', inspect.getsource(store_digits)))
     >>> print("Do not use str or reversed!") if any([r in cleaned for r in ["str", "reversed"]]) else None
     """
-    "*** YOUR CODE HERE ***"
+    # if n < 10:
+    # 	return Link(n)
+    # else:
+    # 	return Link(store_digits(n//10).first, stor
 
 
 def path_yielder(t, value):
